@@ -10,6 +10,11 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
+            /* Prevent text selection */
+            user-select: none; 
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
@@ -153,17 +158,6 @@
                             <span id="result-tab-switches" class="block text-5xl font-extrabold text-gray-800 mt-2">0</span>
                             <span class="block text-sm font-medium text-gray-500 mt-1">Times left quiz window</span>
                         </div>
-                    </div>
-
-                    <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Answer Review</h3>
-                    <div id="review-container" class="space-y-6 max-h-96 overflow-y-auto pr-2">
-                        <!-- Review items injected here -->
-                    </div>
-
-                    <div class="mt-8 text-center">
-                        <button onclick="location.reload()" class="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Restart Quiz
-                        </button>
                     </div>
                 </div>
             </div>
@@ -333,6 +327,7 @@
         let score = 0;
         let userAnswers = [];
         let isQuizActive = false;
+        let isFinished = false;
         let tabSwitchCount = 0;
 
         // DOM Elements
@@ -342,6 +337,52 @@
         const warningModal = document.getElementById('warning-modal');
         const nextBtn = document.getElementById('next-btn');
         const optionsContainer = document.getElementById('options-container');
+
+        // State Management Functions
+        function saveProgress() {
+            const state = {
+                studentName,
+                studentSection,
+                currentQuestionIndex,
+                score,
+                userAnswers,
+                isQuizActive,
+                isFinished,
+                tabSwitchCount
+            };
+            localStorage.setItem('cyberQuizState', JSON.stringify(state));
+        }
+
+        function loadProgress() {
+            const savedState = localStorage.getItem('cyberQuizState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                studentName = state.studentName;
+                studentSection = state.studentSection;
+                currentQuestionIndex = state.currentQuestionIndex;
+                score = state.score;
+                userAnswers = state.userAnswers;
+                isQuizActive = state.isQuizActive;
+                isFinished = state.isFinished || false;
+                tabSwitchCount = state.tabSwitchCount;
+
+                if (isQuizActive) {
+                    document.getElementById('tab-counter-badge').classList.remove('hidden');
+                    document.getElementById('tab-counter-badge').classList.add('flex');
+                    document.getElementById('tab-count-display').innerText = tabSwitchCount;
+                    
+                    screenRegistration.classList.add('hidden');
+                    screenQuiz.classList.remove('hidden');
+                    screenQuiz.classList.add('flex');
+                    
+                    loadQuestion();
+                } else if (isFinished) {
+                    screenRegistration.classList.add('hidden');
+                    screenResults.classList.remove('hidden');
+                    renderResults();
+                }
+            }
+        }
 
         // Functions
         function startQuiz() {
@@ -356,6 +397,9 @@
             studentName = nameInput;
             studentSection = sectionInput;
             isQuizActive = true;
+            isFinished = false;
+            
+            saveProgress(); // Save initial progress
             
             // Show badge
             document.getElementById('tab-counter-badge').classList.remove('hidden');
@@ -436,6 +480,7 @@
             }
 
             currentQuestionIndex++;
+            saveProgress(); // Save progress after each answer
 
             if (currentQuestionIndex < quizData.length) {
                 loadQuestion();
@@ -446,6 +491,9 @@
 
         function finishQuiz() {
             isQuizActive = false; // Stop counting tab switches
+            isFinished = true;
+            
+            saveProgress(); // Save final state
             
             // Update Progress bar to 100
             document.getElementById('progress-bar').style.width = "100%";
@@ -474,52 +522,35 @@
                 document.getElementById('result-tab-switches').classList.remove('text-gray-800');
                 document.getElementById('result-tab-switches').classList.add('text-red-600');
             }
-
-            const reviewContainer = document.getElementById('review-container');
-            reviewContainer.innerHTML = "";
-
-            quizData.forEach((item, index) => {
-                const uAns = userAnswers[index];
-                const cAns = item.answer;
-                const isCorrect = uAns === cAns;
-
-                const card = document.createElement('div');
-                card.className = `p-4 rounded-lg border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
-                
-                const headerInfo = document.createElement('div');
-                headerInfo.className = "flex items-start justify-between mb-2";
-                headerInfo.innerHTML = `
-                    <h4 class="font-bold text-gray-900 text-sm">Q${index + 1}: ${item.question}</h4>
-                    <span class="ml-4 flex-shrink-0 ${isCorrect ? 'text-green-600' : 'text-red-600'}">
-                        ${isCorrect ? 
-                        '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : 
-                        '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'}
-                    </span>
-                `;
-
-                const ansInfo = document.createElement('div');
-                ansInfo.className = "text-sm mt-2";
-                
-                if (isCorrect) {
-                    ansInfo.innerHTML = `<p class="text-green-700"><strong>Your Answer:</strong> ${item.options[uAns]}</p>`;
-                } else {
-                    ansInfo.innerHTML = `
-                        <p class="text-red-700 line-through"><strong>Your Answer:</strong> ${uAns !== undefined ? item.options[uAns] : 'Skipped'}</p>
-                        <p class="text-green-700 font-medium mt-1"><strong>Correct Answer:</strong> ${item.options[cAns]}</p>
-                    `;
-                }
-
-                card.appendChild(headerInfo);
-                card.appendChild(ansInfo);
-                reviewContainer.appendChild(card);
-            });
         }
 
-        // Tab Visibility / Anti-Cheat Logic
+        // --- Anti-Cheat and Visibility Handlers ---
+        
+        // Disable Right-Click
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Disable Inspect Element and View Source Shortcuts
+        document.addEventListener('keydown', event => {
+            // Prevent F12
+            if (event.key === 'F12') {
+                event.preventDefault();
+            }
+            // Prevent Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+            if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i' || event.key === 'J' || event.key === 'j' || event.key === 'C' || event.key === 'c')) {
+                event.preventDefault();
+            }
+            // Prevent Ctrl+U (View Source)
+            if (event.ctrlKey && (event.key === 'U' || event.key === 'u')) {
+                event.preventDefault();
+            }
+        });
+
+        // Tab Visibility / Window Unfocus Logic
         document.addEventListener("visibilitychange", () => {
             if (document.hidden && isQuizActive) {
                 tabSwitchCount++;
                 document.getElementById('tab-count-display').innerText = tabSwitchCount;
+                saveProgress(); // Save state when violation occurs
                 warningModal.classList.remove('hidden');
             }
         });
@@ -527,6 +558,9 @@
         function closeWarningModal() {
             warningModal.classList.add('hidden');
         }
+
+        // Initialize state check on page load
+        window.onload = loadProgress;
 
     </script>
 </body>
