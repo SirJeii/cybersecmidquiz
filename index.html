@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Quiz - IT2501</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .option-label {
+            transition: all 0.2s;
+        }
+        .option-label:hover {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+        }
+        input[type="radio"]:checked + .option-label {
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white shadow-md p-4">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">IT2501: Threats & Password Security Quiz</h1>
+            <div id="tab-counter-badge" class="hidden bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Tab Switches: <span id="tab-count-display">0</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="max-w-3xl w-full bg-white rounded-xl shadow-lg overflow-hidden relative">
+            
+            <!-- Custom Modal for Tab Switch Warning -->
+            <div id="warning-modal" class="hidden absolute inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center fade-in">
+                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                        <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Warning!</h3>
+                    <div class="mt-2 text-sm text-gray-500">
+                        <p>You have switched tabs or left the quiz window. This action has been recorded.</p>
+                    </div>
+                    <div class="mt-4">
+                        <button onclick="closeWarningModal()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm">
+                            I Understand
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Screen 1: Registration -->
+            <div id="screen-registration" class="p-8 fade-in">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900">Course Assessment</h2>
+                    <p class="text-gray-500 mt-2">Threats, Vulnerabilities, and Password Cracking Techniques</p>
+                </div>
+
+                <div class="space-y-6 max-w-md mx-auto">
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    <strong>Academic Integrity Notice:</strong> Switching tabs or leaving the window during the quiz is prohibited. A counter will track any attempts to do so.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="student-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" id="student-name" placeholder="e.g. John Doe" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    </div>
+                    <div>
+                        <label for="student-section" class="block text-sm font-medium text-gray-700">Section</label>
+                        <input type="text" id="student-section" placeholder="e.g. BSIT-3A" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    </div>
+                    <button onclick="startQuiz()" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Start Quiz
+                    </button>
+                    <p id="reg-error" class="text-red-500 text-sm text-center hidden">Please enter both your name and section.</p>
+                </div>
+            </div>
+
+            <!-- Screen 2: Quiz -->
+            <div id="screen-quiz" class="hidden flex-col h-full fade-in">
+                <!-- Progress Bar -->
+                <div class="bg-gray-200 h-2 w-full">
+                    <div id="progress-bar" class="bg-blue-600 h-2 transition-all duration-300" style="width: 0%"></div>
+                </div>
+                
+                <div class="p-6 sm:p-8 flex-grow">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider" id="question-tracker">Question 1 of 30</span>
+                    </div>
+                    
+                    <h3 id="question-text" class="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Question text goes here</h3>
+                    
+                    <div id="options-container" class="space-y-3">
+                        <!-- Options injected here -->
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end">
+                    <button id="next-btn" onclick="nextQuestion()" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        Next Question
+                    </button>
+                </div>
+            </div>
+
+            <!-- Screen 3: Results -->
+            <div id="screen-results" class="hidden fade-in">
+                <div class="bg-blue-900 text-white p-8 text-center">
+                    <h2 class="text-3xl font-bold mb-2">Quiz Completed!</h2>
+                    <p class="text-blue-200" id="result-student-info">Student Name - Section</p>
+                </div>
+                
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
+                            <span class="block text-sm font-medium text-gray-500 uppercase tracking-wide">Final Score</span>
+                            <span id="result-score" class="block text-5xl font-extrabold text-blue-600 mt-2">0/30</span>
+                            <span id="result-percentage" class="block text-lg font-medium text-gray-700 mt-1">0%</span>
+                        </div>
+                        <div id="result-tab-box" class="bg-gray-50 rounded-lg p-6 text-center border border-gray-200">
+                            <span class="block text-sm font-medium text-gray-500 uppercase tracking-wide">Tab Switches / Violations</span>
+                            <span id="result-tab-switches" class="block text-5xl font-extrabold text-gray-800 mt-2">0</span>
+                            <span class="block text-sm font-medium text-gray-500 mt-1">Times left quiz window</span>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Answer Review</h3>
+                    <div id="review-container" class="space-y-6 max-h-96 overflow-y-auto pr-2">
+                        <!-- Review items injected here -->
+                    </div>
+
+                    <div class="mt-8 text-center">
+                        <button onclick="location.reload()" class="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Restart Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Quiz Data based on the provided PDFs
+        const quizData = [
+            {
+                question: "What is the potential occurrence of an undesirable event that can eventually damage and disrupt the operational and functional activities of an organization?",
+                options: ["Vulnerability", "Threat", "Exploit", "Malware"],
+                answer: 1
+            },
+            {
+                question: "Which of the following is NOT broadly classified as a threat source in the document?",
+                options: ["Natural Threats", "Unintentional Threats", "Intentional Threats", "Extraterrestrial Threats"],
+                answer: 3
+            },
+            {
+                question: "Which intentional threat is implemented by unskilled attackers, typically script kiddies, primarily out of curiosity?",
+                options: ["Structured External Threats", "Internal Threats", "Unstructured External Threats", "Natural Threats"],
+                answer: 2
+            },
+            {
+                question: "What type of malware contains malicious or harmful code inside a harmless program or data?",
+                options: ["Trojan", "Virus", "Worm", "Spyware"],
+                answer: 0
+            },
+            {
+                question: "Which standalone malicious program replicates and spreads across network connections independently without human intervention?",
+                options: ["Virus", "Worm", "Keylogger", "Rootkit"],
+                answer: 1
+            },
+            {
+                question: "What type of malware restricts access to the infected computer system or critical files and demands payment to remove restrictions?",
+                options: ["Ransomware", "Spyware", "Adware", "Botnet"],
+                answer: 0
+            },
+            {
+                question: "Which malware is designed to gain access to a computer without being detected and aims to gain root privileges?",
+                options: ["Keylogger", "Trojan", "Rootkit", "Fileless Malware"],
+                answer: 2
+            },
+            {
+                question: "What type of malware leverages existing vulnerabilities to infect the system, generally resides in the system's RAM, and leaves no traces?",
+                options: ["Rootkit", "Fileless Malware", "Spyware", "PUA"],
+                answer: 1
+            },
+            {
+                question: "Which vulnerability classification is caused by coding errors that allow attackers to write content beyond the allocated memory size?",
+                options: ["Misconfiguration", "Design Flaws", "Buffer Overflows", "Default Installations"],
+                answer: 2
+            },
+            {
+                question: "What vulnerability scanning approach involves the attacker interacting directly with the target network to find vulnerabilities?",
+                options: ["Passive Scanning", "Active Scanning", "Graybox Scanning", "Stealth Scanning"],
+                answer: 1
+            },
+            {
+                question: "Which vulnerability assessment type examines the network from a hacker's point of view to identify exploits accessible to the outside world?",
+                options: ["Internal Assessment", "External Assessment", "Host-based Assessment", "Database Assessment"],
+                answer: 1
+            },
+            {
+                question: "What type of assessment sniffs the traffic present on the network to identify active systems and vulnerabilities without directly interacting with them?",
+                options: ["Active Assessment", "Passive Assessment", "Application Assessment", "Credentialed Assessment"],
+                answer: 1
+            },
+            {
+                question: "Which assessment involves testing technologies like MySQL or Oracle for the presence of misconfigurations or injection vulnerabilities?",
+                options: ["Database Assessment", "Host-based Assessment", "Wireless Network Assessment", "Distributed Assessment"],
+                answer: 0
+            },
+            {
+                question: "What is the first phase of the Vulnerability-Management Cycle?",
+                options: ["Risk Assessment", "Vulnerability Scan", "Identify Assets and Create a Baseline", "Remediation"],
+                answer: 2
+            },
+            {
+                question: "Which phase of the Vulnerability-Management Cycle involves the process of applying fixes to vulnerable systems to reduce severity?",
+                options: ["Remediation", "Verification", "Monitor", "Risk Assessment"],
+                answer: 0
+            },
+            {
+                question: "What process involves recovering passwords from data transmitted by a computer system or stored in it?",
+                options: ["Password Hashing", "Password Salting", "Password Cracking", "Password Sniffing"],
+                answer: 2
+            },
+            {
+                question: "Which type of password attack does NOT require technical knowledge and includes techniques like shoulder surfing and social engineering?",
+                options: ["Offline Attacks", "Passive Online Attacks", "Active Online Attacks", "Non-Electronic Attacks"],
+                answer: 3
+            },
+            {
+                question: "In which password attack do attackers try every combination of characters until the password is broken?",
+                options: ["Dictionary Attack", "Brute-Force Attack", "Syllable Attack", "Rule-based Attack"],
+                answer: 1
+            },
+            {
+                question: "What type of attack uses a loaded text file containing several words commonly used as passwords?",
+                options: ["Brute-Force Attack", "Dictionary Attack", "Hybrid Attack", "Wire Sniffing"],
+                answer: 1
+            },
+            {
+                question: "Which active online attack technique involves attempting to log on to the target system with different passwords manually?",
+                options: ["Password Guessing", "Wire Sniffing", "Rainbow Tables", "Offline Cracking"],
+                answer: 0
+            },
+            {
+                question: "Which password attack combines brute force and dictionary techniques by adding numbers or symbols to known dictionary words?",
+                options: ["Syllable Attack", "Hybrid Attack", "Wire Sniffing", "Offline Attack"],
+                answer: 1
+            },
+            {
+                question: "What is a form of passive online attack where hackers capture internet packets to steal credentials during transit?",
+                options: ["Rule-based attack", "Password guessing", "Wire Sniffing", "Hash injection"],
+                answer: 2
+            },
+            {
+                question: "Which of the following is an example of an offline password attack?",
+                options: ["Man-in-the-middle attack", "Trying to recover cleartext passwords from a password hash dump", "Keylogging", "LLMNR poisoning"],
+                answer: 1
+            },
+            {
+                question: "Which tool is designed to audit passwords and recover MS Windows passwords using dictionary, hybrid, and brute-force attacks?",
+                options: ["L0phtCrack", "Wireshark", "Nmap", "Nessus"],
+                answer: 0
+            },
+            {
+                question: "Which password cracking tool cracks hashes using pre-computed 'rainbow tables' and a time-memory trade-off algorithm?",
+                options: ["L0phtCrack", "ophcrack", "RainbowCrack", "THC-Hydra"],
+                answer: 2
+            },
+            {
+                question: "According to password countermeasures, what random string should be added as a password prefix or suffix before performing encryption to nullify pre-computation?",
+                options: ["Hash", "Key", "Salt", "Pepper"],
+                answer: 2
+            },
+            {
+                question: "To make passwords hard to guess, what is the recommended length of alphanumeric characters (including upper/lower case, numbers, and symbols)?",
+                options: ["4-6 characters", "6-8 characters", "8-12 characters", "12-20 characters"],
+                answer: 2
+            },
+            {
+                question: "What HTTP status code is recorded in web server logs for each unsuccessful login attempt, which administrators monitor to detect brute-force attacks?",
+                options: ["HTTP 200", "HTTP 401", "HTTP 403", "HTTP 404"],
+                answer: 1
+            },
+            {
+                question: "Which type of stealthy software secretively records all user activities on a target computer, including keystrokes, and delivers logs to a remote attacker?",
+                options: ["Ransomware", "Spyware", "Worm", "PUA"],
+                answer: 1
+            },
+            {
+                question: "Which vulnerability classification is caused by failing to change out-of-the-box settings while deploying software or hardware?",
+                options: ["Misconfiguration", "Buffer Overflows", "Unpatched Servers", "Default Installations"],
+                answer: 3
+            }
+        ];
+
+        // State Variables
+        let studentName = "";
+        let studentSection = "";
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+        let isQuizActive = false;
+        let tabSwitchCount = 0;
+
+        // DOM Elements
+        const screenRegistration = document.getElementById('screen-registration');
+        const screenQuiz = document.getElementById('screen-quiz');
+        const screenResults = document.getElementById('screen-results');
+        const warningModal = document.getElementById('warning-modal');
+        const nextBtn = document.getElementById('next-btn');
+        const optionsContainer = document.getElementById('options-container');
+
+        // Functions
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            const sectionInput = document.getElementById('student-section').value.trim();
+            
+            if (!nameInput || !sectionInput) {
+                document.getElementById('reg-error').classList.remove('hidden');
+                return;
+            }
+
+            studentName = nameInput;
+            studentSection = sectionInput;
+            isQuizActive = true;
+            
+            // Show badge
+            document.getElementById('tab-counter-badge').classList.remove('hidden');
+            document.getElementById('tab-counter-badge').classList.add('flex');
+
+            screenRegistration.classList.add('hidden');
+            screenQuiz.classList.remove('hidden');
+            screenQuiz.classList.add('flex');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const questionData = quizData[currentQuestionIndex];
+            
+            // Update Header
+            document.getElementById('question-tracker').innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+            document.getElementById('question-text').innerText = questionData.question;
+            
+            // Update Progress Bar
+            const progress = ((currentQuestionIndex) / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            // Render Options
+            optionsContainer.innerHTML = "";
+            questionData.options.forEach((option, index) => {
+                const optId = `option-${index}`;
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = "relative flex items-start";
+                
+                const input = document.createElement('input');
+                input.type = "radio";
+                input.name = "quiz-option";
+                input.id = optId;
+                input.value = index;
+                input.className = "hidden";
+                input.onchange = () => { nextBtn.disabled = false; };
+                
+                const label = document.createElement('label');
+                label.htmlFor = optId;
+                label.className = "option-label w-full border border-gray-300 rounded-lg p-4 cursor-pointer flex items-center shadow-sm text-gray-700 bg-white";
+                
+                const letterBox = document.createElement('span');
+                letterBox.className = "h-8 w-8 rounded bg-gray-100 text-gray-600 font-bold flex items-center justify-center mr-4 flex-shrink-0";
+                letterBox.innerText = String.fromCharCode(65 + index); // A, B, C, D
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = "text-base font-medium";
+                textSpan.innerText = option;
+
+                label.appendChild(letterBox);
+                label.appendChild(textSpan);
+                
+                wrapper.appendChild(input);
+                wrapper.appendChild(label);
+                
+                optionsContainer.appendChild(wrapper);
+            });
+
+            nextBtn.disabled = true;
+            
+            // Change button text on last question
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.innerText = "Submit Quiz";
+            }
+        }
+
+        function nextQuestion() {
+            const selectedOption = document.querySelector('input[name="quiz-option"]:checked');
+            if (!selectedOption) return;
+
+            const selectedAnswer = parseInt(selectedOption.value);
+            userAnswers.push(selectedAnswer);
+
+            if (selectedAnswer === quizData[currentQuestionIndex].answer) {
+                score++;
+            }
+
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            isQuizActive = false; // Stop counting tab switches
+            
+            // Update Progress bar to 100
+            document.getElementById('progress-bar').style.width = "100%";
+            
+            setTimeout(() => {
+                screenQuiz.classList.add('hidden');
+                screenQuiz.classList.remove('flex');
+                screenResults.classList.remove('hidden');
+                document.getElementById('tab-counter-badge').classList.add('hidden');
+                
+                renderResults();
+            }, 300);
+        }
+
+        function renderResults() {
+            document.getElementById('result-student-info').innerText = `${studentName} • ${studentSection}`;
+            document.getElementById('result-score').innerText = `${score} / ${quizData.length}`;
+            
+            const percentage = Math.round((score / quizData.length) * 100);
+            document.getElementById('result-percentage').innerText = `${percentage}%`;
+            
+            document.getElementById('result-tab-switches').innerText = tabSwitchCount;
+            if (tabSwitchCount > 0) {
+                document.getElementById('result-tab-box').classList.remove('bg-gray-50', 'border-gray-200');
+                document.getElementById('result-tab-box').classList.add('bg-red-50', 'border-red-300');
+                document.getElementById('result-tab-switches').classList.remove('text-gray-800');
+                document.getElementById('result-tab-switches').classList.add('text-red-600');
+            }
+
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = "";
+
+            quizData.forEach((item, index) => {
+                const uAns = userAnswers[index];
+                const cAns = item.answer;
+                const isCorrect = uAns === cAns;
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-lg border ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
+                
+                const headerInfo = document.createElement('div');
+                headerInfo.className = "flex items-start justify-between mb-2";
+                headerInfo.innerHTML = `
+                    <h4 class="font-bold text-gray-900 text-sm">Q${index + 1}: ${item.question}</h4>
+                    <span class="ml-4 flex-shrink-0 ${isCorrect ? 'text-green-600' : 'text-red-600'}">
+                        ${isCorrect ? 
+                        '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : 
+                        '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'}
+                    </span>
+                `;
+
+                const ansInfo = document.createElement('div');
+                ansInfo.className = "text-sm mt-2";
+                
+                if (isCorrect) {
+                    ansInfo.innerHTML = `<p class="text-green-700"><strong>Your Answer:</strong> ${item.options[uAns]}</p>`;
+                } else {
+                    ansInfo.innerHTML = `
+                        <p class="text-red-700 line-through"><strong>Your Answer:</strong> ${uAns !== undefined ? item.options[uAns] : 'Skipped'}</p>
+                        <p class="text-green-700 font-medium mt-1"><strong>Correct Answer:</strong> ${item.options[cAns]}</p>
+                    `;
+                }
+
+                card.appendChild(headerInfo);
+                card.appendChild(ansInfo);
+                reviewContainer.appendChild(card);
+            });
+        }
+
+        // Tab Visibility / Anti-Cheat Logic
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && isQuizActive) {
+                tabSwitchCount++;
+                document.getElementById('tab-count-display').innerText = tabSwitchCount;
+                warningModal.classList.remove('hidden');
+            }
+        });
+
+        function closeWarningModal() {
+            warningModal.classList.add('hidden');
+        }
+
+    </script>
+</body>
+</html>
